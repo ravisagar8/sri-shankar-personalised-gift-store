@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#17243b">
+<meta name="description" content="Personalised gifts by Sri Shankar Digitals, Raichur.">
+<link rel="manifest" href="manifest.webmanifest">
+<title>Sri Shankar Digitals | Personalised Gift Store</title>
+<style>
+:root{--navy:#17243b;--gold:#d8b879;--cream:#fffaf1;--ink:#20283a;--muted:#697386;--line:#e8e4dc;--green:#16834a}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--ink);background:#f7f7f5}
+button,input,textarea,select{font:inherit}button{cursor:pointer}
+header{background:var(--navy);color:white;padding:18px max(18px,calc((100% - 1120px)/2));display:flex;align-items:center;justify-content:space-between;gap:16px;position:sticky;top:0;z-index:5;box-shadow:0 4px 18px #101a2c25}
+.brand{display:flex;align-items:center;gap:12px}.logo-img{width:58px;height:58px;object-fit:contain;background:#fff;border-radius:10px;padding:3px;flex:0 0 auto}.brand strong{display:block;letter-spacing:.5px}.brand small{color:#e5d5b5;letter-spacing:2px;font-size:10px}
+.header-actions{display:flex;gap:8px;align-items:center}.pill{border:1px solid #ffffff55;color:white;background:transparent;padding:9px 13px;border-radius:22px}
+main{max-width:1120px;margin:auto;padding:22px 18px 70px}
+.hero{background:linear-gradient(120deg,#17243b 0%,#263e60 65%,#765c39 100%);border-radius:24px;padding:34px;color:white;position:relative;overflow:hidden;min-height:260px;display:flex;align-items:center}
+.hero:after{content:"🎁";position:absolute;right:7%;font-size:clamp(100px,20vw,190px);opacity:.18;transform:rotate(-12deg)}
+.hero-copy{max-width:590px;position:relative;z-index:1}.eyebrow{color:var(--gold);font-size:12px;letter-spacing:3px;font-weight:700}.hero h1{font-family:Georgia,serif;font-size:clamp(32px,5vw,54px);line-height:1.05;margin:12px 0}.hero p{color:#e7eaf0;max-width:480px;line-height:1.6}.gold-btn,.primary{background:var(--gold);color:#18243a;border:0;border-radius:10px;padding:12px 17px;font-weight:750}.section-head{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:30px 0 15px}.section-head h2{margin:0;font-family:Georgia,serif;font-size:27px}.muted{color:var(--muted);font-size:13px}
+.categories{display:flex;gap:9px;overflow:auto;padding:2px 0 8px}.chip{border:1px solid var(--line);background:white;border-radius:30px;padding:9px 14px;white-space:nowrap;color:var(--ink)}.chip.active{background:var(--navy);color:white;border-color:var(--navy)}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px}.product{background:white;border:1px solid var(--line);border-radius:16px;overflow:hidden;display:flex;flex-direction:column}.product-art{height:155px;background:linear-gradient(135deg,#f7ead2,#e9edf3);display:grid;place-items:center;font-size:64px;overflow:hidden}.product-art img{width:100%;height:100%;object-fit:cover}.product-info{padding:13px;display:flex;flex-direction:column;gap:8px;flex:1}.product-info h3{font-size:15px;margin:0}.product-info p{font-size:12px;color:var(--muted);margin:0;line-height:1.4}.product-bottom{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:auto}.price{font-size:13px;font-weight:750}.add{background:var(--navy);color:white;border:0;border-radius:8px;padding:8px 11px;font-size:12px}
+.info-strip{margin-top:28px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;display:grid;grid-template-columns:repeat(3,1fr);gap:15px}.info-strip strong{display:block;font-size:14px}.info-strip span{font-size:12px;color:var(--muted)}
+footer{background:var(--navy);color:#fff;text-align:center;padding:26px 18px}footer p{color:#d7deea;font-size:13px;margin:6px}
+.modal-backdrop{position:fixed;inset:0;background:#10182799;z-index:10;display:none;align-items:center;justify-content:center;padding:15px}.modal{background:white;border-radius:18px;padding:22px;width:min(560px,100%);max-height:90vh;overflow:auto}.modal h2{margin-top:0;font-family:Georgia,serif}.field{display:grid;gap:6px;margin:12px 0}.field label{font-size:13px;font-weight:700}.field input,.field textarea,.field select{width:100%;padding:11px;border:1px solid #d9dde5;border-radius:9px;background:white}.field textarea{min-height:75px;resize:vertical}.modal-actions{display:flex;gap:9px;justify-content:flex-end;margin-top:16px}.secondary{border:1px solid #cfd4dc;background:white;border-radius:9px;padding:11px 15px}.cart-list{display:grid;gap:9px}.cart-row{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding:8px 0;font-size:14px}.remove{border:0;background:none;color:#b42318}.empty{padding:25px;text-align:center;color:var(--muted)}
+#adminPanel{display:none}.admin-note{background:#fff7e8;border:1px solid #f1dfb9;padding:12px;border-radius:10px;font-size:12px;color:#66502a}
+@media(max-width:800px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.product-art{height:135px}.info-strip{grid-template-columns:1fr}.hero{padding:27px 22px}.hero:after{right:-8%;opacity:.12}}
+@media(max-width:420px){header{padding:12px}.brand strong{font-size:13px}.logo-img{width:48px;height:48px}.brand small{font-size:8px}.pill{padding:8px 10px;font-size:12px}.grid{gap:10px}.product-info{padding:10px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><img class="logo-img" src="assets/sri-shankar-digitals-logo.png" alt="Sri Shankar Digitals logo"><div><strong>SRI SHANKAR DIGITALS</strong><small>PERSONALISED GIFT STORE</small></div></div>
+  <div class="header-actions"><button class="pill" onclick="openCart()">🛒 <span id="cartCount">0</span></button><button class="pill" onclick="openAdmin()">Manage</button></div>
+</header>
+<main>
+  <section class="hero">
+    <div class="hero-copy"><div class="eyebrow">MAKE EVERY MOMENT SPECIAL</div><h1>We Make Your Memories Unique</h1><p>Thoughtful personalised gifts, made with your photos, names and special messages.</p><button class="gold-btn" onclick="document.getElementById('catalogue').scrollIntoView({behavior:'smooth'})">Explore Gifts →</button></div>
+  </section>
+  <div class="section-head" id="catalogue"><div><h2>Find the perfect gift</h2><div class="muted">Choose a product and make it yours.</div></div></div>
+  <div class="categories" id="categories"></div>
+  <div class="grid" id="products"></div>
+  <section class="info-strip">
+    <div>📷 <strong>Your photo, your gift</strong><span>Personalise with photos and names.</span></div>
+    <div>💬 <strong>Easy WhatsApp ordering</strong><span>Send your custom order directly to us.</span></div>
+    <div>📍 <strong>Raichur, Karnataka</strong><span>Contact us for availability and delivery.</span></div>
+  </section>
+</main>
+<footer><strong>SRI SHANKAR DIGITALS</strong><p>We Make Your Memories Unique</p><p>Raichur, Karnataka · WhatsApp: +91 94487 57499</p></footer>
+
+<div class="modal-backdrop" id="cartModal" onclick="backdropClose(event,'cartModal')"><div class="modal">
+  <h2>Your gift order</h2><div id="cartItems" class="cart-list"></div>
+  <div class="field"><label>Your name</label><input id="custName" placeholder="Enter your name"></div>
+  <div class="field"><label>Mobile number</label><input id="custPhone" placeholder="Your contact number"></div>
+  <div class="field"><label>Personalisation details</label><textarea id="custDetails" placeholder="Names, message, photo requirements, preferred colour, etc."></textarea></div>
+  <div class="field"><label>Attach photo (optional)</label><input type="file" id="custPhoto" accept="image/*"><small class="muted">WhatsApp will open; attach your photo in the chat before sending.</small></div>
+  <div class="modal-actions"><button class="secondary" onclick="closeModal('cartModal')">Continue shopping</button><button class="primary" onclick="sendOrder()">Order on WhatsApp</button></div>
+</div></div>
+
+<div class="modal-backdrop" id="adminModal" onclick="backdropClose(event,'adminModal')"><div class="modal">
+  <h2>Store manager</h2><p class="muted">Add products to this browser's catalogue. Changes are saved on this device only.</p>
+  <div class="admin-note">Important: this starter version has no shared cloud database. Products you add here will not automatically appear on customers' phones. A shared catalogue can be connected in a later step.</div>
+  <div class="field"><label>New product name</label><input id="newName" placeholder="e.g. Personalised LED Photo Frame"></div>
+  <div class="field"><label>Category</label><select id="newCategory"><option>Mugs</option><option>T-Shirts</option><option>Photo Frames</option><option>Bottles</option><option>Cushions</option><option>Mementos</option><option>Other Gifts</option></select></div>
+  <div class="field"><label>Price (₹) – optional</label><input id="newPrice" type="number" min="0" placeholder="Leave blank for Ask for price"></div>
+  <div class="field"><label>Product photo</label><input id="newImage" type="file" accept="image/*"></div>
+  <div class="field"><label>Short description</label><input id="newDesc" placeholder="Add your photo and name"></div>
+  <div class="modal-actions"><button class="secondary" onclick="closeModal('adminModal')">Close</button><button class="primary" onclick="addProduct()">Save product</button></div>
+</div></div>
+
+<script>
+const WA = "919448757499";
+const defaults = [
+ {id:1,name:"White Photo Mug",category:"Mugs",desc:"Personalised white mug with your photo and message.",price:300,emoji:"☕",image:"assets/white-mug.png"},
+ {id:2,name:"Black Photo Mug",category:"Mugs",desc:"Black mug customised with your favourite photo.",price:350,emoji:"☕",image:"assets/black-mug.png"},
+ {id:3,name:"Magic Mug",category:"Mugs",desc:"Magic mug that reveals the photo with a hot drink.",price:550,emoji:"☕",image:"assets/magic-mug.png"},
+ {id:4,name:"Personalised T-Shirt",category:"T-Shirts",desc:"Custom photo or message printed on a T-shirt.",price:350,emoji:"👕",image:"assets/custom-tshirt.png"},
+ {id:5,name:"Photo Cushion",category:"Cushions",desc:"Heart-shaped personalised photo cushion.",price:650,emoji:"❤️",image:"assets/cushion.png"},
+ {id:6,name:"Pink Handle Photo Mug",category:"Mugs",desc:"Photo mug with a pink handle and inner rim.",price:350,emoji:"☕",image:"assets/pink-handle-photo-mug.jpg"},
+ {id:7,name:"Magic Mirror",category:"Personalised Gifts",desc:"Personalised illuminated photo magic mirror.",price:600,emoji:"🪞",image:"assets/magic-mirror.jpg"},
+ {id:8,name:"Personalised Photo Bottle",category:"Bottles",desc:"Bottle customised with your photo.",price:550,emoji:"🧴",image:"assets/personalised-bottle.jpg"},
+ {id:9,name:"Brown Leaf Photo Frame – 8 × 12 inch",category:"Photo Frames",desc:"8 × 12 inch brown leaf photo frame.",price:500,emoji:"🖼️",image:"assets/8x12-brown-leaf-frame.jpg"},
+ {id:10,name:"Plain Brown Photo Frame – 10 × 12 inch",category:"Photo Frames",desc:"10 × 12 inch plain brown photo frame.",price:600,emoji:"🖼️",image:"assets/10x12-plane-brown-frame.jpg"},
+ {id:11,name:"Brown Button Photo Frame – 12 × 15 inch",category:"Photo Frames",desc:"12 × 15 inch brown button photo frame.",price:900,emoji:"🖼️",image:"assets/12x15-brown-button-frame.jpg"},
+ {id:12,name:"Brown Gold Line Photo Frame – 12 × 18 inch",category:"Photo Frames",desc:"12 × 18 inch brown gold line photo frame.",price:1000,emoji:"🖼️",image:"assets/12x18-brown-goldline-frame.jpg"},
+ {id:13,name:"Black Mount Frame – 12 × 18 inch",category:"Photo Frames",desc:"12 × 18 inch black mount photo frame.",price:1400,emoji:"🖼️",image:"assets/12x18-black-mount-frame.jpg"},
+ {id:14,name:"White Mount Frame – 12 × 18 inch",category:"Photo Frames",desc:"12 × 18 inch white mount photo frame.",price:1400,emoji:"🖼️",image:"assets/12x18-white-mount-frame.jpg"}
+];
+let products = JSON.parse(localStorage.getItem("ssd_products_v2")||"null") || defaults;
+let cart = [];
+let active = "All";
+function save(){localStorage.setItem("ssd_products_v2",JSON.stringify(products))}
+function render(){
+ const cats=["All",...new Set(products.map(p=>p.category))];
+ document.getElementById("categories").innerHTML=cats.map(c=>`<button class="chip ${active===c?'active':''}" onclick="active='${c.replace(/'/g,"\\'")}';render()">${c}</button>`).join("");
+ const shown=active==="All"?products:products.filter(p=>p.category===active);
+ document.getElementById("products").innerHTML=shown.map(p=>`<article class="product"><div class="product-art">${p.image?`<img src="${p.image}" alt="${escapeHtml(p.name)}">`:p.emoji||"🎁"}</div><div class="product-info"><h3>${escapeHtml(p.name)}</h3><p>${escapeHtml(p.desc||"Made specially for you.")}</p><div class="product-bottom"><span class="price">${p.price?`₹${Number(p.price).toLocaleString("en-IN")}`:"Ask for price"}</span><button class="add" onclick="addToCart(${p.id})">Add +</button></div></div></article>`).join("");
+ document.getElementById("cartCount").textContent=cart.reduce((n,x)=>n+x.qty,0);
+}
+function escapeHtml(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function addToCart(id){let p=products.find(x=>x.id===id), item=cart.find(x=>x.id===id);if(item)item.qty++;else cart.push({id,qty:1});render();openCart()}
+function openCart(){renderCart();document.getElementById("cartModal").style.display="flex"}
+function renderCart(){let el=document.getElementById("cartItems");if(!cart.length){el.innerHTML='<div class="empty">Your cart is empty. Add a gift to get started.</div>';return}el.innerHTML=cart.map(x=>{let p=products.find(y=>y.id===x.id);return `<div class="cart-row"><span><b>${escapeHtml(p?.name||"Gift")}</b><br><small>Qty: ${x.qty}</small></span><button class="remove" onclick="removeItem(${x.id})">Remove</button></div>`}).join("")}
+function removeItem(id){cart=cart.filter(x=>x.id!==id);render();renderCart()}
+function sendOrder(){
+ if(!cart.length){alert("Please add a product first.");return}
+ let name=document.getElementById("custName").value.trim(),phone=document.getElementById("custPhone").value.trim(),details=document.getElementById("custDetails").value.trim();
+ if(!name){alert("Please enter your name.");return}
+ let lines=cart.map(x=>{let p=products.find(y=>y.id===x.id);return `• ${p.name} (Qty: ${x.qty})`});
+ let msg=`Hello Sri Shankar Digitals! I would like to place an order.%0A%0AName: ${encodeURIComponent(name)}%0AMobile: ${encodeURIComponent(phone||"Not provided")}%0AProducts:%0A${encodeURIComponent(lines.join("\n"))}%0A%0APersonalisation: ${encodeURIComponent(details||"Please contact me")}%0A%0AI will send my photo in this WhatsApp chat.`;
+ window.open(`https://wa.me/${WA}?text=${msg}`,"_blank");
+}
+function openAdmin(){document.getElementById("adminModal").style.display="flex"}
+function addProduct(){
+ let name=document.getElementById("newName").value.trim();if(!name){alert("Enter a product name.");return}
+ let file=document.getElementById("newImage").files[0],finish=(image)=>{products.push({id:Date.now(),name,category:document.getElementById("newCategory").value,price:document.getElementById("newPrice").value||null,desc:document.getElementById("newDesc").value.trim(),image,emoji:"🎁"});save();render();closeModal("adminModal");document.getElementById("newName").value="";document.getElementById("newPrice").value="";document.getElementById("newDesc").value="";document.getElementById("newImage").value="";alert("Product saved on this device.")};
+ if(file){let r=new FileReader();r.onload=()=>finish(r.result);r.readAsDataURL(file)}else finish(null);
+}
+function closeModal(id){document.getElementById(id).style.display="none"}
+function backdropClose(e,id){if(e.target.id===id)closeModal(id)}
+if("serviceWorker" in navigator && location.protocol.startsWith("http"))navigator.serviceWorker.register("./sw.js").catch(()=>{});
+render();
+</script>
+</body></html>
