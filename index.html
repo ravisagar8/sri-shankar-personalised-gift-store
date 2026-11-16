@@ -8,6 +8,25 @@
 <link rel="manifest" href="manifest.webmanifest">
 <title>Sri Shankar Digitals | Personalised Gift Store</title>
 <style>
+header .brand {
+    align-items: center !important;
+    gap: 10px !important;
+}
+
+header .logo-img {
+    width: 55px !important;
+    height: 55px !important;
+    max-width: 55px !important;
+    object-fit: contain !important;
+}
+
+header .brand strong {
+    font-size: 20px !important;
+}
+
+header .brand small {
+    font-size: 11px !important;
+}
 /* FIX LARGE WEBSITE HEADER */
 header {
     min-height: 0 !important;
@@ -45,6 +64,7 @@ header{background:var(--navy);color:white;padding:18px max(18px,calc((100% - 112
     flex-direction: row;
 }
 
+
 .logo-img {
     width: 55px;
     height: 55px;
@@ -69,11 +89,6 @@ header{background:var(--navy);color:white;padding:18px max(18px,calc((100% - 112
     letter-spacing: 1.5px;
     color: #d8b879;
     margin-top: 3px;
-}    object-fit: contain;
-    background: #fff;
-    border-radius: 10px;
-    padding: 3px;
-    flex: 0 0 auto;
 }
 
 .brand strong {
@@ -135,7 +150,43 @@ footer{background:var(--navy);color:#fff;text-align:center;padding:26px 18px}foo
     object-position: center !important;
     display: block;
 }
+
+/* FINAL HEADER OVERRIDE */
+header {
+    height: auto !important;
+    min-height: 0 !important;
+    padding: 8px 20px !important;
+}
+
+header .logo-img {
+    width: 55px !important;
+    height: 55px !important;
+    max-width: 55px !important;
+}
+
+header .brand {
+    display: flex !important;
+    align-items: center !important;
+}
 </style>
+    /* FINAL HEADER SIZE FIX */
+header {
+    height: auto !important;
+    min-height: 0 !important;
+    padding: 8px 20px !important;
+}
+
+header .logo-img {
+    width: 55px !important;
+    height: 55px !important;
+    max-width: 55px !important;
+}
+
+header .brand {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+}
 </head>
 <body>
 <header>
