@@ -273,9 +273,11 @@ function render(){
  const shown=active==="All"?products:products.filter(p=>p.category===active);
     if (active === "Photo Frames") {
   const getSize = p => {
-    const m = (p.name + " " + (p.desc || "")).match(/(\d+)\s*[×xX]\s*(\d+)/);
-    return m ? Number(m[1]) * Number(m[2]) : Infinity;
+    const text = (p.name || "") + " " + (p.desc || "");
+    const m = text.match(/(\d+)\s*[x×X]\s*(\d+)/);
+    return m ? Number(m[1]) * Number(m[2]) : 999999;
   };
+
   shown.sort((a, b) => getSize(a) - getSize(b));
 }
  document.getElementById("products").innerHTML=shown.map(p=>`<article class="product"><div class="product-art">${p.image?`<img src="${escapeHtml(p.image)}" alt="${escapeHtml(p.name)}" loading="lazy">`:p.emoji||"🎁"}</div><div class="product-info"><h3>${escapeHtml(p.name)}</h3><p>${escapeHtml(p.desc||"Made specially for you.")}</p><div class="product-bottom"><span class="price">${p.price!==null&&p.price!==undefined&&p.price!==""?`₹${Number(p.price).toLocaleString("en-IN")}`:"Ask for price"}</span><button class="add" onclick="addToCart(${Number(p.id)})">Add +</button></div></div></article>`).join("");
