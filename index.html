@@ -209,67 +209,132 @@ header .brand {
 </div></div>
 
 <div class="modal-backdrop" id="adminModal" onclick="backdropClose(event,'adminModal')"><div class="modal">
-  <h2>Store manager</h2><p class="muted">Add products to this browser's catalogue. Changes are saved on this device only.</p>
-  <div class="admin-note">Important: this starter version has no shared cloud database. Products you add here will not automatically appear on customers' phones. A shared catalogue can be connected in a later step.</div>
-  <div class="field"><label>New product name</label><input id="newName" placeholder="e.g. Personalised LED Photo Frame"></div>
-  <div class="field"><label>Category</label><select id="newCategory"><option>Mugs</option><option>T-Shirts</option><option>Photo Frames</option><option>Bottles</option><option>Cushions</option><option>Mementos</option><option>Other Gifts</option></select></div>
-  <div class="field"><label>Price (₹) – optional</label><input id="newPrice" type="number" min="0" placeholder="Leave blank for Ask for price"></div>
-  <div class="field"><label>Product photo</label><input id="newImage" type="file" accept="image/*"></div>
-  <div class="field"><label>Short description</label><input id="newDesc" placeholder="Add your photo and name"></div>
-  <div class="modal-actions"><button class="secondary" onclick="closeModal('adminModal')">Close</button><button class="primary" onclick="addProduct()">Save product</button></div>
+  <h2>Store manager</h2>
+  <div id="adminLoginArea">
+    <p class="muted">Sign in with your authorised store administrator account.</p>
+    <div class="field"><label>Admin email</label><input id="adminEmail" type="email" value="srishankardigitals@gmail.com" autocomplete="username"></div>
+    <div class="field"><label>Password</label><input id="adminPassword" type="password" autocomplete="current-password" placeholder="Enter your Supabase account password"></div>
+    <p id="adminMessage" class="muted" role="status"></p>
+    <div class="modal-actions"><button class="secondary" onclick="closeModal('adminModal')">Close</button><button class="primary" id="adminLoginButton" onclick="adminLogin()">Sign in</button></div>
+  </div>
+  <div id="adminTools" style="display:none">
+    <p class="muted">Products are saved to Supabase and appear on the website for all visitors.</p>
+    <div class="field"><label>New product name</label><input id="newName" placeholder="e.g. Personalised LED Photo Frame"></div>
+    <div class="field"><label>Category</label><select id="newCategory"><option>Mugs</option><option>T-Shirts</option><option>Photo Frames</option><option>Bottles</option><option>Cushions</option><option>Mementos</option><option>Personalised Gifts</option><option>Other Gifts</option></select></div>
+    <div class="field"><label>Price (₹) – optional</label><input id="newPrice" type="number" min="0" placeholder="Leave blank for Ask for price"></div>
+    <div class="field"><label>Product photo</label><input id="newImage" type="file" accept="image/jpeg,image/png,image/webp"></div>
+    <div class="field"><label>Short description</label><input id="newDesc" placeholder="Add your photo and name"></div>
+    <p id="productMessage" class="muted" role="status"></p>
+    <div class="modal-actions"><button class="secondary" onclick="adminLogout()">Sign out</button><button class="secondary" onclick="closeModal('adminModal')">Close</button><button class="primary" id="saveProductButton" onclick="addProduct()">Save product</button></div>
+    <div class="section-head"><div><h2 style="font-size:20px">Manage products</h2></div></div><div id="adminProductList" class="cart-list"></div>
+  </div>
 </div></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const WA = "919448757499";
+const SUPABASE_URL = "https://upujsxrtdtqahiraugaz.supabase.co";
+// Publishable/anon key only. Never place a service-role or secret key in website code.
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_I7D7_9W7EX6N_Yqhsk6WzQ_psNCXVlY";
+const ADMIN_EMAIL = "srishankardigitals@gmail.com";
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 const defaults = [
- {id:1,name:"White Photo Mug",category:"Mugs",desc:"Personalised white mug with your photo and message.",price:300,emoji:"☕",image:"assets/white-mug.png"},
- {id:2,name:"Black Photo Mug",category:"Mugs",desc:"Black mug customised with your favourite photo.",price:350,emoji:"☕",image:"assets/black-mug.png"},
- {id:3,name:"Magic Mug",category:"Mugs",desc:"Magic mug that reveals the photo with a hot drink.",price:550,emoji:"☕",image:"assets/magic-mug.png"},
- {id:4,name:"Personalised T-Shirt",category:"T-Shirts",desc:"Custom photo or message printed on a T-shirt.",price:350,emoji:"👕",image:"assets/custom-tshirt.png"},
- {id:5,name:"Photo Cushion",category:"Cushions",desc:"Heart-shaped personalised photo cushion.",price:650,emoji:"❤️",image:"assets/cushion.png"},
- {id:6,name:"Pink Handle Photo Mug",category:"Mugs",desc:"Photo mug with a pink handle and inner rim.",price:350,emoji:"☕",image:"assets/pink-handle-photo-mug.jpg"},
- {id:7,name:"Magic Mirror",category:"Personalised Gifts",desc:"Personalised illuminated photo magic mirror.",price:600,emoji:"🪞",image:"assets/magic-mirror.jpg"},
- {id:8,name:"Personalised Photo Bottle",category:"Bottles",desc:"Bottle customised with your photo.",price:550,emoji:"🧴",image:"assets/personalised-bottle.jpg"},
- {id:9,name:"Brown Leaf Photo Frame – 8 × 12 inch",category:"Photo Frames",desc:"8 × 12 inch brown leaf photo frame.",price:500,emoji:"🖼️",image:"assets/8x12-brown-leaf-frame.jpg"},
- {id:10,name:"Plain Brown Photo Frame – 10 × 12 inch",category:"Photo Frames",desc:"10 × 12 inch plain brown photo frame.",price:600,emoji:"🖼️",image:"assets/10x12-plane-brown-frame.jpg"},
- {id:11,name:"Brown Button Photo Frame – 12 × 15 inch",category:"Photo Frames",desc:"12 × 15 inch brown button photo frame.",price:900,emoji:"🖼️",image:"assets/12x15-brown-button-frame.jpg"},
- {id:12,name:"Brown Gold Line Photo Frame – 12 × 18 inch",category:"Photo Frames",desc:"12 × 18 inch brown gold line photo frame.",price:1000,emoji:"🖼️",image:"assets/12x18-brown-goldline-frame.jpg"},
- {id:13,name:"Black Mount Frame – 12 × 18 inch",category:"Photo Frames",desc:"12 × 18 inch black mount photo frame.",price:1400,emoji:"🖼️",image:"assets/12x18-black-mount-frame.jpg"},
- {id:14,name:"White Mount Frame – 12 × 18 inch",category:"Photo Frames",desc:"12 × 18 inch white mount photo frame.",price:1400,emoji:"🖼️",image:"assets/12x18-white-mount-frame.jpg"}
+ {id:1,name:"White Photo Mug",category:"Mugs",desc:"Personalised white mug with your photo and message.",price:300,emoji:"☕",image:"https://upujsxrtdtqahiraugaz.supabase.co/storage/v1/object/public/product-images/white-mug.png"},
+ {id:2,name:"Black Photo Mug",category:"Mugs",desc:"Black mug customised with your favourite photo.",price:350,emoji:"☕",image:"https://upujsxrtdtqahiraugaz.supabase.co/storage/v1/object/public/product-images/black-mug.png"},
+ {id:3,name:"Magic Mug",category:"Mugs",desc:"Magic mug that reveals the photo with a hot drink.",price:550,emoji:"☕",image:"https://upujsxrtdtqahiraugaz.supabase.co/storage/v1/object/public/product-images/magic-mug.png"},
+ {id:4,name:"Personalised T-Shirt",category:"T-Shirts",desc:"Custom photo or message printed on a T-shirt.",price:350,emoji:"👕",image:"https://upujsxrtdtqahiraugaz.supabase.co/storage/v1/object/public/product-images/custom-tshirt.png"},
+ {id:5,name:"Photo Cushion",category:"Cushions",desc:"Heart-shaped personalised photo cushion.",price:650,emoji:"❤️",image:"https://upujsxrtdtqahiraugaz.supabase.co/storage/v1/object/public/product-images/cushion.png"},
+ {id:6,name:"Pink Handle Photo Mug",category:"Mugs",desc:"Photo mug with a pink handle and inner rim.",price:350,emoji:"☕",image:"https://upujsxrtdtqahiraugaz.supabase.co/storage/v1/object/public/product-images/pink-handle-photo-mug.jpg"},
+ {id:7,name:"Magic Mirror",category:"Personalised Gifts",desc:"Personalised illuminated photo magic mirror.",price:600,emoji:"🪞",image:"https://upujsxrtdtqahiraugaz.supabase.co/storage/v1/object/public/product-images/magic-mirror.jpg"},
+ {id:8,name:"Personalised Photo Bottle",category:"Bottles",desc:"Bottle customised with your photo.",price:550,emoji:"🧴",image:"https://upujsxrtdtqahiraugaz.supabase.co/storage/v1/object/public/product-images/personalised-bottle.png"},
+ {id:9,name:"Brown Leaf Photo Frame – 8 × 12 inch",category:"Photo Frames",desc:"8 × 12 inch brown leaf photo frame.",price:500,emoji:"🖼️",image:"https://upujsxrtdtqahiraugaz.supabase.co/storage/v1/object/public/product-images/8x12-brown-leaf-frame.jpg"},
+ {id:10,name:"Plain Brown Photo Frame – 10 × 12 inch",category:"Photo Frames",desc:"10 × 12 inch plain brown photo frame.",price:600,emoji:"🖼️",image:"https://upujsxrtdtqahiraugaz.supabase.co/storage/v1/object/public/product-images/10x12-plane-brown-frame.jpg"},
+ {id:11,name:"Brown Button Photo Frame – 12 × 15 inch",category:"Photo Frames",desc:"12 × 15 inch brown button photo frame.",price:900,emoji:"🖼️",image:"https://upujsxrtdtqahiraugaz.supabase.co/storage/v1/object/public/product-images/12x15-brown-button-frame.jpg"},
+ {id:12,name:"Brown Gold Line Photo Frame – 12 × 18 inch",category:"Photo Frames",desc:"12 × 18 inch brown gold line photo frame.",price:1000,emoji:"🖼️",image:"https://upujsxrtdtqahiraugaz.supabase.co/storage/v1/object/public/product-images/12x18-brown-goldline-frame.jpg"},
+ {id:13,name:"Black Mount Frame – 12 × 18 inch",category:"Photo Frames",desc:"12 × 18 inch black mount photo frame.",price:1400,emoji:"🖼️",image:"https://upujsxrtdtqahiraugaz.supabase.co/storage/v1/object/public/product-images/12x18-black-mount-frame.jpg"},
+ {id:14,name:"White Mount Frame – 12 × 18 inch",category:"Photo Frames",desc:"12 × 18 inch white mount photo frame.",price:1400,emoji:"🖼️",image:"https://upujsxrtdtqahiraugaz.supabase.co/storage/v1/object/public/product-images/12x18-white-mount-frame.jpg"}
 ];
-let products = JSON.parse(localStorage.getItem("ssd_products_v2")||"null") || defaults;
-let cart = [];
-let active = "All";
-function save(){localStorage.setItem("ssd_products_v2",JSON.stringify(products))}
+let products = defaults, cart = [], active = "All", editingId = null, isAdmin = false;
+function mapProduct(p){return {id:p.id,name:p.name,category:p.category,desc:p.description||p.desc||"Made specially for you.",price:p.price,emoji:p.emoji||"🎁",image:p.image_url||p.image||null}}
+async function loadProducts(){
+ const {data,error}=await supabaseClient.from("products").select("id,name,category,description,price,emoji,image_url,created_at").order("created_at",{ascending:false});
+ if(error){console.error("Supabase products:",error.message);products=defaults;render();return}
+ products=data&&data.length?data.map(mapProduct):defaults;
+ render(); if(isAdmin)renderAdminProducts();
+}
 function render(){
  const cats=["All",...new Set(products.map(p=>p.category))];
- document.getElementById("categories").innerHTML=cats.map(c=>`<button class="chip ${active===c?'active':''}" onclick="active='${c.replace(/'/g,"\\'")}';render()">${c}</button>`).join("");
+ document.getElementById("categories").innerHTML=cats.map(c=>`<button class="chip ${active===c?'active':''}" onclick="active='${c.replace(/'/g,"\\'")}';render()">${escapeHtml(c)}</button>`).join("");
  const shown=active==="All"?products:products.filter(p=>p.category===active);
- document.getElementById("products").innerHTML=shown.map(p=>`<article class="product"><div class="product-art">${p.image?`<img src="${p.image}" alt="${escapeHtml(p.name)}">`:p.emoji||"🎁"}</div><div class="product-info"><h3>${escapeHtml(p.name)}</h3><p>${escapeHtml(p.desc||"Made specially for you.")}</p><div class="product-bottom"><span class="price">${p.price?`₹${Number(p.price).toLocaleString("en-IN")}`:"Ask for price"}</span><button class="add" onclick="addToCart(${p.id})">Add +</button></div></div></article>`).join("");
+ document.getElementById("products").innerHTML=shown.map(p=>`<article class="product"><div class="product-art">${p.image?`<img src="${escapeHtml(p.image)}" alt="${escapeHtml(p.name)}" loading="lazy">`:p.emoji||"🎁"}</div><div class="product-info"><h3>${escapeHtml(p.name)}</h3><p>${escapeHtml(p.desc||"Made specially for you.")}</p><div class="product-bottom"><span class="price">${p.price!==null&&p.price!==undefined&&p.price!==""?`₹${Number(p.price).toLocaleString("en-IN")}`:"Ask for price"}</span><button class="add" onclick="addToCart(${Number(p.id)})">Add +</button></div></div></article>`).join("");
  document.getElementById("cartCount").textContent=cart.reduce((n,x)=>n+x.qty,0);
 }
 function escapeHtml(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
-function addToCart(id){let p=products.find(x=>x.id===id), item=cart.find(x=>x.id===id);if(item)item.qty++;else cart.push({id,qty:1});render();openCart()}
+function addToCart(id){let p=products.find(x=>String(x.id)===String(id)),item=cart.find(x=>String(x.id)===String(id));if(!p)return;if(item)item.qty++;else cart.push({id,qty:1});render();openCart()}
 function openCart(){renderCart();document.getElementById("cartModal").style.display="flex"}
-function renderCart(){let el=document.getElementById("cartItems");if(!cart.length){el.innerHTML='<div class="empty">Your cart is empty. Add a gift to get started.</div>';return}el.innerHTML=cart.map(x=>{let p=products.find(y=>y.id===x.id);return `<div class="cart-row"><span><b>${escapeHtml(p?.name||"Gift")}</b><br><small>Qty: ${x.qty}</small></span><button class="remove" onclick="removeItem(${x.id})">Remove</button></div>`}).join("")}
-function removeItem(id){cart=cart.filter(x=>x.id!==id);render();renderCart()}
+function renderCart(){let el=document.getElementById("cartItems");if(!cart.length){el.innerHTML='<div class="empty">Your cart is empty. Add a gift to get started.</div>';return}el.innerHTML=cart.map(x=>{let p=products.find(y=>String(y.id)===String(x.id));return `<div class="cart-row"><span><b>${escapeHtml(p?.name||"Gift")}</b><br><small>Qty: ${x.qty}</small></span><button class="remove" onclick="removeItem('${String(x.id)}')">Remove</button></div>`}).join("")}
+function removeItem(id){cart=cart.filter(x=>String(x.id)!==String(id));render();renderCart()}
 function sendOrder(){
  if(!cart.length){alert("Please add a product first.");return}
  let name=document.getElementById("custName").value.trim(),phone=document.getElementById("custPhone").value.trim(),details=document.getElementById("custDetails").value.trim();
  if(!name){alert("Please enter your name.");return}
- let lines=cart.map(x=>{let p=products.find(y=>y.id===x.id);return `• ${p.name} (Qty: ${x.qty})`});
- let msg=`Hello Sri Shankar Digitals! I would like to place an order.%0A%0AName: ${encodeURIComponent(name)}%0AMobile: ${encodeURIComponent(phone||"Not provided")}%0AProducts:%0A${encodeURIComponent(lines.join("\n"))}%0A%0APersonalisation: ${encodeURIComponent(details||"Please contact me")}%0A%0AI will send my photo in this WhatsApp chat.`;
- window.open(`https://wa.me/${WA}?text=${msg}`,"_blank");
+ let lines=cart.map(x=>{let p=products.find(y=>String(y.id)===String(x.id));return `• ${p?.name||"Gift"} (Qty: ${x.qty})`});
+ let msg=`Hello Sri Shankar Digitals! I would like to place an order.\n\nName: ${name}\nMobile: ${phone||"Not provided"}\nProducts:\n${lines.join("\n")}\n\nPersonalisation: ${details||"Please contact me"}\n\nI will send my photo in this WhatsApp chat.`;
+ window.open(`https://wa.me/${WA}?text=${encodeURIComponent(msg)}`,"_blank");
 }
-function openAdmin(){document.getElementById("adminModal").style.display="flex"}
-function addProduct(){
- let name=document.getElementById("newName").value.trim();if(!name){alert("Enter a product name.");return}
- let file=document.getElementById("newImage").files[0],finish=(image)=>{products.push({id:Date.now(),name,category:document.getElementById("newCategory").value,price:document.getElementById("newPrice").value||null,desc:document.getElementById("newDesc").value.trim(),image,emoji:"🎁"});save();render();closeModal("adminModal");document.getElementById("newName").value="";document.getElementById("newPrice").value="";document.getElementById("newDesc").value="";document.getElementById("newImage").value="";alert("Product saved on this device.")};
- if(file){let r=new FileReader();r.onload=()=>finish(r.result);r.readAsDataURL(file)}else finish(null);
+async function openAdmin(){document.getElementById("adminModal").style.display="flex";document.getElementById("adminMessage").textContent="";const {data:{session}}=await supabaseClient.auth.getSession();if(session&&session.user.email===ADMIN_EMAIL){showAdminTools()}else{isAdmin=false;document.getElementById("adminLoginArea").style.display="block";document.getElementById("adminTools").style.display="none"}}
+function showAdminTools(){isAdmin=true;document.getElementById("adminLoginArea").style.display="none";document.getElementById("adminTools").style.display="block";renderAdminProducts()}
+async function adminLogin(){
+ const email=document.getElementById("adminEmail").value.trim(),password=document.getElementById("adminPassword").value;
+ const msg=document.getElementById("adminMessage"),btn=document.getElementById("adminLoginButton");
+ if(!email||!password){msg.textContent="Enter your email and password.";return}
+ btn.disabled=true;msg.textContent="Signing in…";
+ const {data,error}=await supabaseClient.auth.signInWithPassword({email,password});btn.disabled=false;
+ if(error){msg.textContent="Sign-in failed: "+error.message;return}
+ if(data.user.email!==ADMIN_EMAIL){await supabaseClient.auth.signOut();msg.textContent="This account is not authorised as the store administrator.";return}
+ document.getElementById("adminPassword").value="";showAdminTools();
+}
+async function adminLogout(){await supabaseClient.auth.signOut();isAdmin=false;document.getElementById("adminTools").style.display="none";document.getElementById("adminLoginArea").style.display="block";document.getElementById("adminMessage").textContent="You have signed out."}
+async function uploadProductImage(file){
+ if(!file)return null;
+ if(!["image/jpeg","image/png","image/webp"].includes(file.type))throw new Error("Please choose a JPG, PNG or WebP image.");
+ if(file.size>10*1024*1024)throw new Error("Image must be smaller than 10 MB.");
+ const safe=file.name.toLowerCase().replace(/[^a-z0-9.-]+/g,"-");const path=`${Date.now()}-${safe}`;
+ const {error}=await supabaseClient.storage.from("product-images").upload(path,file,{upsert:false,contentType:file.type});if(error)throw error;
+ const {data}=supabaseClient.storage.from("product-images").getPublicUrl(path);return data.publicUrl;
+}
+async function addProduct(){
+ if(!isAdmin){alert("Please sign in as administrator.");return}
+ const name=document.getElementById("newName").value.trim();if(!name){alert("Enter a product name.");return}
+ const btn=document.getElementById("saveProductButton"),msg=document.getElementById("productMessage");btn.disabled=true;msg.textContent="Saving product to Supabase…";
+ try{
+  const file=document.getElementById("newImage").files[0];let imageUrl=file?await uploadProductImage(file):null;
+  const payload={id:Date.now(),name,category:document.getElementById("newCategory").value,description:document.getElementById("newDesc").value.trim(),price:document.getElementById("newPrice").value?Number(document.getElementById("newPrice").value):0,emoji:"🎁",image_url:imageUrl};
+  const {error}=await supabaseClient.from("products").insert(payload);if(error)throw error;
+  document.getElementById("newName").value="";document.getElementById("newPrice").value="";document.getElementById("newDesc").value="";document.getElementById("newImage").value="";
+  msg.textContent="Product saved successfully.";await loadProducts();
+ }catch(e){msg.textContent="Could not save product: "+(e.message||"Unknown error");}
+ btn.disabled=false;
+}
+function renderAdminProducts(){
+ const el=document.getElementById("adminProductList");if(!el)return;
+ el.innerHTML=products.map(p=>`<div class="cart-row"><span><b>${escapeHtml(p.name)}</b><br><small>${escapeHtml(p.category)}</small></span><span><button class="secondary" onclick="editProduct('${String(p.id)}')">Edit</button> <button class="remove" onclick="deleteProduct('${String(p.id)}')">Delete</button></span></div>`).join("")||'<div class="empty">No products found.</div>';
+}
+async function editProduct(id){
+ const p=products.find(x=>String(x.id)===String(id));if(!p)return;
+ const name=prompt("Product name:",p.name);if(name===null)return;if(!name.trim()){alert("Product name cannot be empty.");return}
+ const price=prompt("Price in ₹ (leave blank for Ask for price):",p.price??"");if(price===null)return;
+ const desc=prompt("Short description:",p.desc||"");if(desc===null)return;
+ const {error}=await supabaseClient.from("products").update({name:name.trim(),price:price.trim()?Number(price):0,description:desc.trim()}).eq("id",p.id);
+ if(error){alert("Could not update product: "+error.message);return}await loadProducts();
+}
+async function deleteProduct(id){
+ const p=products.find(x=>String(x.id)===String(id));if(!p||!confirm(`Delete ${p.name}? This cannot be undone.`))return;
+ const {error}=await supabaseClient.from("products").delete().eq("id",p.id);if(error){alert("Could not delete product: "+error.message);return}await loadProducts();
 }
 function closeModal(id){document.getElementById(id).style.display="none"}
 function backdropClose(e,id){if(e.target.id===id)closeModal(id)}
-if("serviceWorker" in navigator && location.protocol.startsWith("http"))navigator.serviceWorker.register("./sw.js").catch(()=>{});
-render();
+if("serviceWorker" in navigator&&location.protocol.startsWith("http"))navigator.serviceWorker.register("./sw.js").catch(()=>{});
+loadProducts();
 </script>
 </body></html>
