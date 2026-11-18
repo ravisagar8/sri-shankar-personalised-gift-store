@@ -259,8 +259,13 @@ function mapProduct(p){return {id:p.id,name:p.name,category:p.category,desc:p.de
 async function loadProducts(){
  const {data,error}=await supabaseClient.from("products").select("id,name,category,description,price,emoji,image_url,created_at").order("created_at",{ascending:false});
  if(error){console.error("Supabase products:",error.message);products=defaults;render();return}
- products=data&&data.length?data.map(mapProduct):defaults;
- render(); if(isAdmin)renderAdminProducts();
+const savedProducts = data.map(mapProduct);
+const savedNames = new Set(savedProducts.map(p => p.name.trim().toLowerCase()));
+
+products = [
+  ...defaults.filter(p => !savedNames.has(p.name.trim().toLowerCase())),
+  ...savedProducts
+]; render(); if(isAdmin)renderAdminProducts();
 }
 function render(){
  const cats=["All",...new Set(products.map(p=>p.category))];
