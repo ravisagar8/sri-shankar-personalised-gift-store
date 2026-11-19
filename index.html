@@ -230,6 +230,18 @@ header .brand {
   </div>
 </div></div>
 
+
+<div class="modal-backdrop" id="editProductModal" onclick="backdropClose(event,'editProductModal')"><div class="modal">
+  <h2>Edit product</h2><input type="hidden" id="editProductId">
+  <div class="field"><label>Product name</label><input id="editName"></div>
+  <div class="field"><label>Price (₹)</label><input id="editPrice" type="number" min="0"></div>
+  <div class="field"><label>Short description</label><input id="editDesc"></div>
+  <div class="field"><label>Current product photo</label><div id="editImagePreview" style="min-height:120px;display:flex;align-items:center;justify-content:center;background:#f5f5f5;border-radius:10px;padding:8px"></div></div>
+  <div class="field"><label>Replace photo (optional)</label><input id="editImage" type="file" accept="image/jpeg,image/png,image/webp"></div>
+  <p id="editMessage" class="muted" role="status"></p>
+  <div class="modal-actions"><button class="secondary" onclick="closeModal('editProductModal')">Cancel</button><button class="primary" id="updateProductButton" onclick="saveEditedProduct()">Save changes</button></div>
+</div></div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const WA = "919448757499";
@@ -261,11 +273,8 @@ async function loadProducts(){
  if(error){console.error("Supabase products:",error.message);products=defaults;render();return}
 const savedProducts = data.map(mapProduct);
 const savedNames = new Set(savedProducts.map(p => p.name.trim().toLowerCase()));
-
-products = [
-  ...defaults.filter(p => !savedNames.has(p.name.trim().toLowerCase())),
-  ...savedProducts
-]; render(); if(isAdmin)renderAdminProducts();
+ const savedIds = new Set(savedProducts.map(p => String(p.id)));
+products = [...defaults.filter(p => !savedNames.has(p.name.trim().toLowerCase()) && !savedIds.has(String(p.id))), ...savedProducts]; render(); if(isAdmin)renderAdminProducts();
 }
 function render(){
  const cats=["All",...new Set(products.map(p=>p.category))];
@@ -334,13 +343,40 @@ function renderAdminProducts(){
  const el=document.getElementById("adminProductList");if(!el)return;
  el.innerHTML=products.map(p=>`<div class="cart-row"><span><b>${escapeHtml(p.name)}</b><br><small>${escapeHtml(p.category)}</small></span><span><button class="secondary" onclick="editProduct('${String(p.id)}')">Edit</button> <button class="remove" onclick="deleteProduct('${String(p.id)}')">Delete</button></span></div>`).join("")||'<div class="empty">No products found.</div>';
 }
-async function editProduct(id){
+function editProduct(id){
  const p=products.find(x=>String(x.id)===String(id));if(!p)return;
- const name=prompt("Product name:",p.name);if(name===null)return;if(!name.trim()){alert("Product name cannot be empty.");return}
- const price=prompt("Price in ₹ (leave blank for Ask for price):",p.price??"");if(price===null)return;
- const desc=prompt("Short description:",p.desc||"");if(desc===null)return;
- const {error}=await supabaseClient.from("products").update({name:name.trim(),price:price.trim()?Number(price):0,description:desc.trim()}).eq("id",p.id);
- if(error){alert("Could not update product: "+error.message);return}await loadProducts();
+ document.getElementById("editProductId").value=String(p.id);
+ document.getElementById("editName").value=p.name||"";
+ document.getElementById("editPrice").value=p.price??"";
+ document.getElementById("editDesc").value=p.desc||"";
+ document.getElementById("editImage").value="";
+ document.getElementById("editMessage").textContent="";
+ const preview=document.getElementById("editImagePreview");
+ preview.innerHTML=p.image?`<img src="${escapeHtml(p.image)}" alt="Current product image" style="max-width:100%;max-height:220px;object-fit:contain">`:"<span>No current photo</span>";
+ document.getElementById("editProductModal").style.display="flex";
+}
+async function saveEditedProduct(){
+ if(!isAdmin){alert("Please sign in as administrator.");return}
+ const id=document.getElementById("editProductId").value;
+ const p=products.find(x=>String(x.id)===String(id));if(!p)return;
+ const name=document.getElementById("editName").value.trim();
+ if(!name){alert("Product name cannot be empty.");return}
+ const priceText=document.getElementById("editPrice").value,desc=document.getElementById("editDesc").value.trim();
+ const file=document.getElementById("editImage").files[0];
+ const btn=document.getElementById("updateProductButton"),msg=document.getElementById("editMessage");
+ btn.disabled=true;msg.textContent="Saving changes…";
+ try{
+   let imageUrl=p.image||null;if(file)imageUrl=await uploadProductImage(file);
+   const payload={id:p.id,name,category:p.category,description:desc,price:priceText.trim()?Number(priceText):0,emoji:p.emoji||"🎁",image_url:imageUrl};
+   const {data:existing,error:checkError}=await supabaseClient.from("products").select("id").eq("id",p.id).maybeSingle();
+   if(checkError)throw checkError;
+   let result;
+   if(existing)result=await supabaseClient.from("products").update({name,description:desc,price:payload.price,image_url:imageUrl}).eq("id",p.id);
+   else result=await supabaseClient.from("products").insert(payload);
+   if(result.error)throw result.error;
+   closeModal("editProductModal");await loadProducts();
+ }catch(e){msg.textContent="Could not update product: "+(e.message||"Unknown error");}
+ btn.disabled=false;
 }
 async function deleteProduct(id){
  const p=products.find(x=>String(x.id)===String(id));if(!p||!confirm(`Delete ${p.name}? This cannot be undone.`))return;
